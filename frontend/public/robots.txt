@@ -1,0 +1,13 @@
+# Non-production deployment. This dashboard is the restaurant-simulator
+# development and testing harness (see the repo README) served from a
+# *.cloudfront.net domain; nothing here belongs in public search results.
+#
+# NOTE: this file is defence in depth, not the primary control. Every path on
+# the distribution is gated by Cognito auth at CloudFront (Lambda@Edge,
+# spec 029), so an unauthenticated crawler receives a 302 to the Cognito Hosted
+# UI and never reads robots.txt at all. This file matters if the edge
+# authenticator is ever removed or bypassed, or if the origin is exposed
+# directly. To make it authoritative for crawlers, /robots.txt would need an
+# exemption in the edge authenticator.
+User-agent: *
+Disallow: /

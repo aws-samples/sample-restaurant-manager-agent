@@ -1,0 +1,26 @@
+# GENERATED FILE - do not hand-edit the pins below the marker.
+#
+# Projection of infra/web-push/lambdas/rotator/pylock.toml for pip, created by scripts/lock_dependencies.py.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# scripts/bundle.sh vendors this Lambda's dependencies with
+# `pip install -r requirements.txt -c constraints.txt -t .`. Without the `-c`
+# the install resolves whatever is newest on the day of the bundle, so the
+# deployed artifact's versions are luck rather than policy -- the same class of
+# failure as the 2026-07-31 mcp-2.0.0 outage (see the root constraints.txt).
+#
+# It also makes dependency scanners agree with reality: they read the declared
+# range in requirements.txt, so an old lower bound gets reported as if it were
+# shipped even when the bundle resolves something current.
+#
+# pylock.toml is the SOURCE OF TRUTH. Regenerate both with:
+#
+#   scripts/lock_dependencies.py                          # keeps pins
+#   scripts/lock_dependencies.py --upgrade-package NAME   # moves one package
+#
+# tests/test_dependency_lock.py fails if this file and the lock disagree.
+# --- BEGIN GENERATED PINS - do not edit below this line ---
+cffi==2.1.1
+cryptography==50.0.0
+pycparser==3.0

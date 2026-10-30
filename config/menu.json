@@ -1,0 +1,40 @@
+{
+  "items": [
+    {"id": "classic_burger", "name": "Classic Burger", "price": 12.99, "category": "entree", "prep_time_min": 12.0, "ingredients": [{"id": "beef_patty", "quantity": 1.0}, {"id": "burger_bun", "quantity": 1.0}, {"id": "lettuce", "quantity": 0.1}, {"id": "tomato", "quantity": 0.1}]},
+    {"id": "grilled_chicken", "name": "Grilled Chicken", "price": 14.99, "category": "entree", "prep_time_min": 15.0, "ingredients": [{"id": "chicken_breast", "quantity": 1.0}, {"id": "mixed_greens", "quantity": 0.2}]},
+    {"id": "fish_tacos", "name": "Fish Tacos", "price": 13.49, "category": "entree", "prep_time_min": 10.0, "ingredients": [{"id": "white_fish", "quantity": 0.5}, {"id": "tortilla", "quantity": 3.0}, {"id": "cabbage", "quantity": 0.15}]},
+    {"id": "caesar_salad", "name": "Caesar Salad", "price": 10.99, "category": "appetizer", "prep_time_min": 5.0, "ingredients": [{"id": "romaine", "quantity": 0.3}, {"id": "parmesan", "quantity": 0.05}, {"id": "croutons", "quantity": 0.1}]},
+    {"id": "wings", "name": "Buffalo Wings", "price": 11.49, "category": "appetizer", "prep_time_min": 14.0, "ingredients": [{"id": "chicken_wings", "quantity": 0.75}, {"id": "hot_sauce", "quantity": 0.05}]},
+    {"id": "fries", "name": "French Fries", "price": 4.99, "category": "side", "prep_time_min": 6.0, "ingredients": [{"id": "potato", "quantity": 0.4}]},
+    {"id": "onion_rings", "name": "Onion Rings", "price": 5.99, "category": "side", "prep_time_min": 7.0, "ingredients": [{"id": "onion", "quantity": 0.3}, {"id": "flour", "quantity": 0.1}]},
+    {"id": "coleslaw", "name": "Coleslaw", "price": 3.99, "category": "side", "prep_time_min": 2.0, "ingredients": [{"id": "cabbage", "quantity": 0.2}]},
+    {"id": "soda", "name": "Fountain Soda", "price": 2.49, "category": "drink", "prep_time_min": 1.0, "ingredients": []},
+    {"id": "iced_tea", "name": "Iced Tea", "price": 2.99, "category": "drink", "prep_time_min": 1.0, "ingredients": [{"id": "tea_bags", "quantity": 1.0}]},
+    {"id": "lemonade", "name": "Fresh Lemonade", "price": 3.49, "category": "drink", "prep_time_min": 2.0, "ingredients": [{"id": "lemon", "quantity": 2.0}]},
+    {"id": "brownie", "name": "Chocolate Brownie", "price": 6.99, "category": "dessert", "prep_time_min": 3.0, "ingredients": [{"id": "brownie_mix", "quantity": 1.0}]},
+    {"id": "cheesecake", "name": "NY Cheesecake", "price": 7.99, "category": "dessert", "prep_time_min": 3.0, "ingredients": [{"id": "cheesecake_slice", "quantity": 1.0}]}
+  ],
+  "ingredients": [
+    {"id": "beef_patty", "name": "Beef Patties", "unit": "units", "initial_quantity": 120.0, "reorder_threshold": 25.0, "max_quantity": 200.0},
+    {"id": "burger_bun", "name": "Burger Buns", "unit": "units", "initial_quantity": 120.0, "reorder_threshold": 25.0, "max_quantity": 200.0},
+    {"id": "chicken_breast", "name": "Chicken Breasts", "unit": "units", "initial_quantity": 60.0, "reorder_threshold": 15.0, "max_quantity": 100.0},
+    {"id": "chicken_wings", "name": "Chicken Wings", "unit": "lbs", "initial_quantity": 40.0, "reorder_threshold": 10.0, "max_quantity": 80.0},
+    {"id": "white_fish", "name": "White Fish Fillets", "unit": "lbs", "initial_quantity": 30.0, "reorder_threshold": 8.0, "max_quantity": 50.0},
+    {"id": "potato", "name": "Potatoes", "unit": "lbs", "initial_quantity": 80.0, "reorder_threshold": 15.0, "max_quantity": 150.0},
+    {"id": "lettuce", "name": "Lettuce", "unit": "lbs", "initial_quantity": 20.0, "reorder_threshold": 5.0, "max_quantity": 40.0},
+    {"id": "tomato", "name": "Tomatoes", "unit": "lbs", "initial_quantity": 25.0, "reorder_threshold": 5.0, "max_quantity": 50.0},
+    {"id": "onion", "name": "Onions", "unit": "lbs", "initial_quantity": 30.0, "reorder_threshold": 8.0, "max_quantity": 60.0},
+    {"id": "cabbage", "name": "Cabbage", "unit": "lbs", "initial_quantity": 15.0, "reorder_threshold": 4.0, "max_quantity": 30.0},
+    {"id": "romaine", "name": "Romaine Lettuce", "unit": "lbs", "initial_quantity": 15.0, "reorder_threshold": 4.0, "max_quantity": 30.0},
+    {"id": "mixed_greens", "name": "Mixed Greens", "unit": "lbs", "initial_quantity": 12.0, "reorder_threshold": 3.0, "max_quantity": 25.0},
+    {"id": "tortilla", "name": "Flour Tortillas", "unit": "units", "initial_quantity": 100.0, "reorder_threshold": 20.0, "max_quantity": 200.0},
+    {"id": "parmesan", "name": "Parmesan Cheese", "unit": "lbs", "initial_quantity": 8.0, "reorder_threshold": 2.0, "max_quantity": 15.0},
+    {"id": "croutons", "name": "Croutons", "unit": "lbs", "initial_quantity": 10.0, "reorder_threshold": 3.0, "max_quantity": 20.0},
+    {"id": "hot_sauce", "name": "Hot Sauce", "unit": "gallons", "initial_quantity": 5.0, "reorder_threshold": 1.0, "max_quantity": 10.0},
+    {"id": "flour", "name": "All-Purpose Flour", "unit": "lbs", "initial_quantity": 25.0, "reorder_threshold": 5.0, "max_quantity": 50.0},
+    {"id": "tea_bags", "name": "Tea Bags", "unit": "units", "initial_quantity": 200.0, "reorder_threshold": 40.0, "max_quantity": 400.0},
+    {"id": "lemon", "name": "Lemons", "unit": "units", "initial_quantity": 80.0, "reorder_threshold": 15.0, "max_quantity": 150.0},
+    {"id": "brownie_mix", "name": "Brownie Portions", "unit": "units", "initial_quantity": 40.0, "reorder_threshold": 10.0, "max_quantity": 80.0},
+    {"id": "cheesecake_slice", "name": "Cheesecake Slices", "unit": "units", "initial_quantity": 24.0, "reorder_threshold": 6.0, "max_quantity": 48.0}
+  ]
+}

@@ -1,0 +1,111 @@
+<mxfile host="app.diagrams.net" modified="2026-07-09T00:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="infra-arch" name="Infrastructure Architecture">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="Secure Remote Tool Invocation — Reference Architecture (current: AgentCore Managed Harness + AWS IoT Core)" style="text;html=1;fontSize=18;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="200" y="10" width="1200" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Current production path (&quot;Correlation A&quot;): the chat backend runs the AgentCore harness on the inline-tool path and executes each tool call itself over an outbound IoT round-trip." style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="200" y="48" width="1200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Restaurant general manager -->
+        <mxCell id="mgr" value="Restaurant&#xa;general manager" style="shape=mxgraph.aws4.users;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="410" width="60" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== AWS CLOUD ==================== -->
+        <mxCell id="cloud" value="AWS Cloud (us-west-2)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;dashed=0;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="240" y="120" width="560" height="620" as="geometry" />
+        </mxCell>
+
+        <!-- Chat backend (FastAPI, inline-tool executor) on EC2 -->
+        <mxCell id="chat" value="Chat backend (FastAPI)&#xa;inline-tool executor" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="1">
+          <mxGeometry x="300" y="240" width="56" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- AgentCore Managed Harness (Bedrock) -->
+        <mxCell id="harness" value="AgentCore Managed Harness&#xa;(Amazon Bedrock)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#01A88D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=1;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="600" y="180" width="56" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- AWS IoT Core -->
+        <mxCell id="iot" value="AWS IoT Core&#xa;MQTT broker · mTLS (X.509)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=1;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.iot_core;" vertex="1" parent="1">
+          <mxGeometry x="600" y="500" width="56" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- manager -> chat -->
+        <mxCell id="e-mgr-chat" value="HTTPS chat" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;fontSize=10;fontStyle=1;" edge="1" source="mgr" target="chat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- chat <-> harness -->
+        <mxCell id="e-chat-harness" value="invoke_harness · tool_use / result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;fontSize=10;dir=both;startArrow=classic;endArrow=classic;" edge="1" source="chat" target="harness" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- chat <-> iot -->
+        <mxCell id="e-chat-iot" value="publish command (iot-data:Publish) +&#xa;SigV4 MQTT/WSS response subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;fontSize=10;dir=both;startArrow=classic;endArrow=classic;" edge="1" source="chat" target="iot" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ON-PREM STORE ==================== -->
+        <mxCell id="store" value="On-premises store — behind the firewall · outbound-only · NO inbound connections" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontStyle=1;fontSize=13;dashed=1;dashPattern=5 5;arcSize=4;fontColor=#1A476F;" vertex="1" parent="1">
+          <mxGeometry x="960" y="120" width="560" height="620" as="geometry" />
+        </mxCell>
+
+        <!-- Store gateway -->
+        <mxCell id="gw" value="Store gateway&#xa;outbound MQTT bridge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="500" width="200" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- MCP servers -->
+        <mxCell id="mcp" value="MCP servers&#xa;pos · equipment · inventory · schedule&#xa;(18 tools)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="320" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Store systems -->
+        <mxCell id="systems" value="Store systems&#xa;POS · kitchen · inventory · staff" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1290" y="320" width="200" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- gw -> mcp -->
+        <mxCell id="e-gw-mcp" value="dispatch (MCP)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;fontSize=10;" edge="1" source="gw" target="mcp" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- mcp -> systems -->
+        <mxCell id="e-mcp-sys" value="read / act" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;fontSize=10;" edge="1" source="mcp" target="systems" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== OUTBOUND mTLS LINK ==================== -->
+        <mxCell id="e-gw-iot" value="outbound mTLS · port 443 / ALPN&#xa;x-amzn-mqtt-ca  (store-initiated)&#xa;command (down) + response (up) on one connection" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#1D8102;strokeWidth=3;fontSize=10;fontStyle=1;fontColor=#1D8102;dir=both;startArrow=classic;endArrow=classic;" edge="1" source="gw" target="iot" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#CCCCCC;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="240" y="770" width="1280" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="Notes" style="text;html=1;fontSize=12;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="255" y="778" width="200" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="note1" value="• The store DIALS OUT to AWS IoT Core; the command (cloud → store) and the response (store → cloud) both ride this one store-initiated mTLS connection. No inbound port is ever opened at the store." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="255" y="805" width="1250" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="note2" value="• The agent layer is the Amazon Bedrock AgentCore Managed Harness (reasoning, tool selection, tool execution, streaming); the chat backend runs it on the inline-tool path and performs the IoT round-trip itself." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="255" y="830" width="1250" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="note3" value="• The alternative event-driven durable relay (&quot;Correlation B&quot;: tool-relay Lambdas, IoT Topic Rule, iot-response-handler, DynamoDB) is documented in the reference-architecture prose; the production path shown here is Correlation A." style="text;html=1;fontSize=11;align=left;verticalAlign=top;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="255" y="855" width="1250" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

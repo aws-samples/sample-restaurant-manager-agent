@@ -1,0 +1,16 @@
+{
+  "name": "restaurant-sim-edge-auth",
+  "version": "1.0.0",
+  "description": "Lambda@Edge Cognito authenticator (cognito-at-edge) for the Restaurant Simulator dashboard - spec 029.",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "cognito-at-edge": "1.5.4"
+  }
+}

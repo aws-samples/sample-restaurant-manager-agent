@@ -1,0 +1,16 @@
+# Local MQTT broker for the Slice 3 end-to-end chunking test.
+# Mosquitto stands in for AWS IoT Core's MQTT broker — it is MQTT-faithful for
+# everything the reassembler depends on (topics, QoS 1, per-message delivery).
+# It does NOT reproduce IoT Core's 128 KB rejection, 5 KB metering, Basic
+# Ingest, or mTLS device identity; those are out of scope for a logic test.
+#
+#   docker compose -f large-payload-experiment/docker-compose.yml up -d
+#   ../.venv/bin/python -m pytest large-payload-experiment/test_e2e_mosquitto.py -v
+#   docker compose -f large-payload-experiment/docker-compose.yml down
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf:ro

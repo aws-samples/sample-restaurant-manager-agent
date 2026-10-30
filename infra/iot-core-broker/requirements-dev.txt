@@ -1,0 +1,7 @@
+-r requirements.txt
+aws-cdk-lib==2.250.0
+constructs>=10.0.0,<11.0.0
+# cdk-nag: AwsSolutionsChecks Aspect applied in app.py. Synth-time only, but it
+# lives beside aws-cdk-lib because app.py imports it during synth.
+cdk-nag>=2.28,<3
+pytest>=8.0

@@ -1,0 +1,15 @@
+*.swp
+*.pyc
+package-lock.json
+__pycache__/
+.pytest_cache/
+.venv/
+*.egg-info/
+
+# CDK asset staging directory and synth output
+.cdk.staging/
+cdk.out/
+
+# Local deploy artifacts
+outputs.json
+cdk-outputs.json

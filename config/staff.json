@@ -1,0 +1,44 @@
+{
+  "employees": [
+    {"id": "mgr_01", "name": "Maria Garcia", "role": "manager", "hourly_rate": 28.00, "shifts": [
+      {"day": "monday", "start": "07:00", "end": "15:00"}, {"day": "tuesday", "start": "07:00", "end": "15:00"},
+      {"day": "wednesday", "start": "07:00", "end": "15:00"}, {"day": "thursday", "start": "07:00", "end": "15:00"},
+      {"day": "friday", "start": "07:00", "end": "15:00"}
+    ]},
+    {"id": "cook_01", "name": "James Wilson", "role": "line_cook", "hourly_rate": 19.00, "shifts": [
+      {"day": "monday", "start": "08:00", "end": "16:00"}, {"day": "tuesday", "start": "08:00", "end": "16:00"},
+      {"day": "wednesday", "start": "08:00", "end": "16:00"}, {"day": "thursday", "start": "08:00", "end": "16:00"},
+      {"day": "friday", "start": "08:00", "end": "16:00"}, {"day": "saturday", "start": "09:00", "end": "17:00"}
+    ]},
+    {"id": "cook_02", "name": "Sarah Chen", "role": "line_cook", "hourly_rate": 19.00, "shifts": [
+      {"day": "monday", "start": "14:00", "end": "22:00"}, {"day": "tuesday", "start": "14:00", "end": "22:00"},
+      {"day": "wednesday", "start": "14:00", "end": "22:00"}, {"day": "friday", "start": "14:00", "end": "22:00"},
+      {"day": "saturday", "start": "14:00", "end": "22:00"}
+    ]},
+    {"id": "prep_01", "name": "David Kim", "role": "prep_cook", "hourly_rate": 16.00, "shifts": [
+      {"day": "monday", "start": "06:00", "end": "14:00"}, {"day": "tuesday", "start": "06:00", "end": "14:00"},
+      {"day": "wednesday", "start": "06:00", "end": "14:00"}, {"day": "thursday", "start": "06:00", "end": "14:00"},
+      {"day": "friday", "start": "06:00", "end": "14:00"}
+    ]},
+    {"id": "srv_01", "name": "Emily Brown", "role": "server", "hourly_rate": 12.00, "shifts": [
+      {"day": "monday", "start": "10:00", "end": "18:00"}, {"day": "tuesday", "start": "10:00", "end": "18:00"},
+      {"day": "wednesday", "start": "10:00", "end": "18:00"}, {"day": "thursday", "start": "10:00", "end": "18:00"},
+      {"day": "friday", "start": "10:00", "end": "18:00"}
+    ]},
+    {"id": "srv_02", "name": "Michael Lee", "role": "server", "hourly_rate": 12.00, "shifts": [
+      {"day": "monday", "start": "16:00", "end": "22:00"}, {"day": "wednesday", "start": "16:00", "end": "22:00"},
+      {"day": "friday", "start": "16:00", "end": "22:00"}, {"day": "saturday", "start": "11:00", "end": "19:00"},
+      {"day": "sunday", "start": "11:00", "end": "19:00"}
+    ]},
+    {"id": "host_01", "name": "Lisa Patel", "role": "host", "hourly_rate": 14.00, "shifts": [
+      {"day": "monday", "start": "10:00", "end": "18:00"}, {"day": "tuesday", "start": "10:00", "end": "18:00"},
+      {"day": "wednesday", "start": "10:00", "end": "18:00"}, {"day": "thursday", "start": "10:00", "end": "18:00"},
+      {"day": "friday", "start": "10:00", "end": "18:00"}, {"day": "saturday", "start": "10:00", "end": "18:00"}
+    ]},
+    {"id": "dish_01", "name": "Carlos Rivera", "role": "dishwasher", "hourly_rate": 14.00, "shifts": [
+      {"day": "monday", "start": "09:00", "end": "17:00"}, {"day": "tuesday", "start": "09:00", "end": "17:00"},
+      {"day": "wednesday", "start": "09:00", "end": "17:00"}, {"day": "thursday", "start": "09:00", "end": "17:00"},
+      {"day": "friday", "start": "09:00", "end": "17:00"}, {"day": "saturday", "start": "10:00", "end": "18:00"}
+    ]}
+  ]
+}

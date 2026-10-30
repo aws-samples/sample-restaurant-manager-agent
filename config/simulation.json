@@ -1,0 +1,13 @@
+{
+  "tick_interval_seconds": 1.0,
+  "peak_hours": [[11, 13], [17, 20]],
+  "peak_orders_per_hour": 45,
+  "off_peak_orders_per_hour": 12,
+  "avg_order_value": 14.50,
+  "void_rate": 0.03,
+  "avg_prep_time_min": 12.0,
+  "waste_probability": 0.01,
+  "clock_in_variance_min": 5.0,
+  "default_speed_multiplier": 10.0,
+  "random_seed": null
+}

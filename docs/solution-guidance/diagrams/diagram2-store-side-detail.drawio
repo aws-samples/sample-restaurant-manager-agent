@@ -1,0 +1,139 @@
+<mxfile host="app.diagrams.net" modified="2026-06-19T14:25:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="diagram2-store-side-detail" name="Store-Side Detail">
+    <mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1140" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="title" value="Store-Side Detail - the universal tool interface behind the firewall" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="260" y="16" width="880" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="One outbound, mutually-authenticated connection carries both commands and responses. No inbound port is ever opened." style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="260" y="48" width="880" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="iot" value="AWS IoT Core&#xa;(cloud)" style="sketch=0;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#7AA116;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=1;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.iot_core;" vertex="1" parent="1">
+          <mxGeometry x="660" y="84" width="72" height="72" as="geometry" />
+        </mxCell>
+        <mxCell id="fwnote" value="Store firewall / NAT&#xa;OUTBOUND 8883 ONLY - no inbound ports, no VPN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="980" y="86" width="340" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- STORE -->
+        <mxCell id="store" value="On-premises store" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;verticalAlign=top;align=left;spacingLeft=12;fontStyle=1;fontSize=14;dashed=1;dashPattern=8 8;arcSize=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="210" width="1320" height="890" as="geometry" />
+        </mxCell>
+
+        <!-- gateway -->
+        <mxCell id="gw" value="Store gateway (runs on existing store hardware)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;verticalAlign=top;align=left;spacingLeft=10;fontStyle=2;fontSize=12;dashed=1;dashPattern=6 6;" vertex="1" parent="1">
+          <mxGeometry x="80" y="250" width="1240" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="client" value="Outbound mTLS MQTT client&#xa;X.509 cert - client_id = thing = store_id&#xa;SUB stores/{id}/commands/+" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="110" y="300" width="260" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="disp" value="Command dispatcher&#xa;parse - validate - route by tool_name" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="310" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="dedup" value="Correlation-ID dedup cache&#xa;LRU + TTL - at-most-once writes" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="720" y="310" width="250" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="pub" value="Response publisher&#xa;PUB stores/{id}/responses/{cid}" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="310" width="270" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- MCP -->
+        <mxCell id="mcp" value="MCP servers - universal tool interface (18 tools)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#6c8ebf;verticalAlign=top;align=left;spacingLeft=10;fontStyle=2;fontSize=12;dashed=1;dashPattern=6 6;" vertex="1" parent="1">
+          <mxGeometry x="80" y="470" width="1240" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp_pos" value="POS MCP&#xa;get_daily_sales - void_order ..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="110" y="520" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp_eq" value="Equipment MCP&#xa;get_equipment_status - set_timer ..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="520" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp_inv" value="Inventory MCP&#xa;get_stock_levels - log_waste ..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="520" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="mcp_sched" value="Schedule MCP&#xa;get_current_shifts - clock_in ..." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="520" width="270" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- sources -->
+        <mxCell id="src" value="Real in-store data sources (production) - replaced by the simulator in development" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#82b366;verticalAlign=top;align=left;spacingLeft=10;fontStyle=2;fontSize=12;dashed=1;dashPattern=6 6;" vertex="1" parent="1">
+          <mxGeometry x="80" y="700" width="1240" height="370" as="geometry" />
+        </mxCell>
+        <mxCell id="src_pos" value="POS system / terminals" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="110" y="760" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="src_eq" value="Kitchen equipment&#xa;sensors &amp; controllers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="760" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="src_inv" value="Inventory database" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="730" y="760" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="src_sched" value="Scheduling system" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="760" width="270" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="src_log" value="Logs &amp; event streams" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="420" y="950" width="270" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- EDGES -->
+        <mxCell id="e_client_iot" value="outbound mTLS :8883" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;strokeWidth=3;strokeColor=#2e7d32;fontSize=11;fontStyle=1;fontColor=#2e7d32;" edge="1" parent="1" source="client" target="iot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pub_iot" value="outbound mTLS :8883" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;strokeWidth=3;strokeColor=#2e7d32;fontSize=11;fontStyle=1;fontColor=#2e7d32;" edge="1" parent="1" source="pub" target="iot">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_iot_client" value="commands ride the same outbound link" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;fontSize=10;fontColor=#888888;" edge="1" parent="1" source="iot" target="client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_client_disp" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="client" target="disp">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_disp_dedup" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="disp" target="dedup">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dedup_pos" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="dedup" target="mcp_pos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dedup_eq" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="dedup" target="mcp_eq">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dedup_inv" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="dedup" target="mcp_inv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_dedup_sched" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="dedup" target="mcp_sched">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pos_src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="mcp_pos" target="src_pos">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_eq_src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="mcp_eq" target="src_eq">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_inv_src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="mcp_inv" target="src_inv">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sched_src" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;" edge="1" parent="1" source="mcp_sched" target="src_sched">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_eq_log" value="read / act" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;fontSize=9;" edge="1" parent="1" source="mcp_eq" target="src_log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pos_log" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;" edge="1" parent="1" source="mcp_pos" target="src_log">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_pos_pub" value="tool result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;fontSize=9;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="mcp_pos" target="pub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_sched_pub" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;dashed=1;" edge="1" parent="1" source="mcp_sched" target="pub">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_fwnote_client" style="edgeStyle=none;html=1;endArrow=none;dashed=1;strokeColor=#b85450;" edge="1" parent="1" source="fwnote" target="client">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
