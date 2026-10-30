@@ -1,0 +1,13 @@
+# Rotator needs only cryptography (EC P-256 keygen). Native .so -> bundled for
+# arm64 at deploy (scripts/bundle.sh), same as push_sender. boto3 is provided by
+# the Lambda runtime. Exact version pinned in constraints.txt (projected from
+# pylock.toml) and enforced by bundle.sh via `pip install -c`.
+#
+# Floor raised from >=42 to >=50 to take CVE-2026-69247 (PKCS#7 EnvelopedData
+# decryption exposes a Bleichenbacher oracle). The previous `<50` cap was what
+# held this at 49.0.0 and kept the CVE open; the cap carried no documented
+# reason, and push_sender already vendored 50.0.0 without being flagged, which
+# is what identified 50.x as the patched line. The <51 cap is deliberate: a
+# major bump of a native crypto dep should be an explicit decision, per the
+# mcp>=1.29,<2 precedent.
+cryptography>=50,<51

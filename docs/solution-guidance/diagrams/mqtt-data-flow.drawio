@@ -1,0 +1,185 @@
+<mxfile host="app.diagrams.net" modified="2026-07-09T00:00:00.000Z" agent="draw.io" version="24.0.0" type="device">
+  <diagram id="mqtt-flow" name="MQTT Data Flow">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- Title -->
+        <mxCell id="title" value="One Tool Invocation, End to End (numbered request → response)" style="text;html=1;fontSize=20;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="300" y="10" width="900" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Current production path (&quot;Correlation A&quot;): the chat backend executes each tool call itself over an outbound AWS IoT Core round-trip. No Amazon MQ, no Fargate, no DynamoDB polling." style="text;html=1;fontSize=11;fontStyle=2;align=center;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="300" y="48" width="900" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- ===== CLOUD CLUSTER ===== -->
+        <mxCell id="cloud" value="AWS Cloud (us-west-2)" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=1;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=none;verticalAlign=top;align=left;spacingLeft=30;dashed=0;fontColor=#232F3E;" vertex="1" parent="1">
+          <mxGeometry x="180" y="120" width="700" height="360" as="geometry" />
+        </mxCell>
+
+        <!-- Chat backend -->
+        <mxCell id="chat" value="Chat backend&#xa;(inline-tool executor)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#ED7100;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=1;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="1">
+          <mxGeometry x="230" y="300" width="56" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- Harness -->
+        <mxCell id="harness" value="AgentCore&#xa;Managed Harness" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#01A88D;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=1;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.bedrock;" vertex="1" parent="1">
+          <mxGeometry x="470" y="170" width="56" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- IoT Core -->
+        <mxCell id="iot" value="AWS IoT Core" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#E7157B;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=1;aspect=fixed;pointerEvents=1;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.iot_core;" vertex="1" parent="1">
+          <mxGeometry x="720" y="300" width="56" height="56" as="geometry" />
+        </mxCell>
+
+        <!-- ===== STORE CLUSTER ===== -->
+        <mxCell id="store" value="Store — behind the firewall · outbound-only" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;verticalAlign=top;fontStyle=1;fontSize=13;dashed=1;dashPattern=5 5;arcSize=4;fontColor=#1A476F;" vertex="1" parent="1">
+          <mxGeometry x="960" y="120" width="470" height="360" as="geometry" />
+        </mxCell>
+
+        <!-- Store gateway -->
+        <mxCell id="gw" value="Store gateway" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1010" y="300" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- MCP tool + store system -->
+        <mxCell id="tool" value="MCP tool&#xa;+ store system" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=12;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1230" y="300" width="160" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- ===== NUMBERED EDGES ===== -->
+        <!-- 1. manager -> chat -->
+        <mxCell id="mgr" value="Restaurant&#xa;general manager" style="shape=mxgraph.aws4.users;outlineConnect=0;fontColor=#232F3E;gradientColor=none;fillColor=#232F3E;strokeColor=none;dashed=0;verticalLabelPosition=bottom;verticalAlign=top;align=center;html=1;fontSize=11;fontStyle=0;aspect=fixed;pointerEvents=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="305" width="56" height="56" as="geometry" />
+        </mxCell>
+        <mxCell id="s1" value="1. ask (chat)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#0078d4;fontSize=10;fontStyle=1;" edge="1" source="mgr" target="chat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 2. chat -> harness -->
+        <mxCell id="s2" value="2. invoke_harness" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#0078d4;fontSize=10;fontStyle=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" source="chat" target="harness" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 3. harness -> chat -->
+        <mxCell id="s3" value="3. tool_use&#xa;(get_equipment_status)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#0078d4;fontSize=10;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" edge="1" source="harness" target="chat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 4. chat -> iot (publish command + subscribe) -->
+        <mxCell id="s4" value="4. iot-data:Publish command&#xa;+ SigV4 subscribe response" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#0078d4;fontSize=10;" edge="1" source="chat" target="iot" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 5. iot -> gw (deliver over outbound mTLS) -->
+        <mxCell id="s5" value="5. deliver over the store's&#xa;outbound mTLS connection" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#1D8102;strokeWidth=3;fontSize=10;fontStyle=1;fontColor=#1D8102;" edge="1" source="iot" target="gw" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 6. gw -> tool -->
+        <mxCell id="s6" value="6. dispatch + read/act" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#0078d4;fontSize=10;" edge="1" source="gw" target="tool" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 7. gw -> iot (publish response) -->
+        <mxCell id="s7" value="7. publish response" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#245A8D;fontSize=10;fontStyle=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" source="gw" target="iot" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 8. iot -> chat (response, bounded 30s wait) -->
+        <mxCell id="s8" value="8. response&#xa;(bounded 30s wait)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#245A8D;fontSize=10;fontStyle=1;exitX=0.25;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" source="iot" target="chat" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 9. chat <-> harness (re-invoke toolResult) -->
+        <mxCell id="s9" value="9. re-invoke (toolResult)&#xa;→ final answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#245A8D;fontSize=10;fontStyle=1;dir=both;startArrow=classic;endArrow=classic;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" source="chat" target="harness" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 10. chat -> manager -->
+        <mxCell id="s10" value="10. answer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeWidth=2;strokeColor=#245A8D;fontSize=10;fontStyle=1;" edge="1" source="chat" target="mgr" parent="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- Command JSON box -->
+        <mxCell id="cmd-json-label" value="Command Message — topic: stores/{store_id}/commands/{domain}" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#0078d4;" vertex="1" parent="1">
+          <mxGeometry x="190" y="510" width="560" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="cmd-json" value="{&#xa;  &quot;correlation_id&quot;: &quot;9e2e...&quot;,&#xa;  &quot;tool_name&quot;: &quot;get_equipment_status&quot;,&#xa;  &quot;parameters&quot;: {},&#xa;  &quot;timeout_ms&quot;: 30000&#xa;}" style="text;html=1;fontSize=10;fontFamily=Courier New;align=left;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#CCCCCC;rounded=1;whiteSpace=wrap;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="190" y="530" width="560" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Response JSON box -->
+        <mxCell id="resp-json-label" value="Response Message — topic: stores/{store_id}/responses/{correlation_id}" style="text;html=1;fontSize=10;fontStyle=1;align=left;fontColor=#245A8D;" vertex="1" parent="1">
+          <mxGeometry x="800" y="510" width="620" height="18" as="geometry" />
+        </mxCell>
+        <mxCell id="resp-json" value="{&#xa;  &quot;correlation_id&quot;: &quot;9e2e...&quot;,&#xa;  &quot;tool_name&quot;: &quot;get_equipment_status&quot;,&#xa;  &quot;status&quot;: &quot;success&quot;,&#xa;  &quot;result&quot;: { ... },&#xa;  &quot;duration_ms&quot;: 42&#xa;}" style="text;html=1;fontSize=10;fontFamily=Courier New;align=left;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#CCCCCC;rounded=1;whiteSpace=wrap;spacingLeft=6;spacingTop=4;" vertex="1" parent="1">
+          <mxGeometry x="800" y="530" width="620" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- ===== KEY FEATURES ===== -->
+        <mxCell id="features-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#CCCCCC;arcSize=4;" vertex="1" parent="1">
+          <mxGeometry x="190" y="660" width="880" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="features-title" value="Key Design Features" style="text;html=1;fontSize=14;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="210" y="668" width="300" height="25" as="geometry" />
+        </mxCell>
+        <mxCell id="feat1" value="🔒 Outbound-only: the store never accepts inbound connections. The gateway dials out to AWS IoT Core over mutual TLS (X.509); command and response ride that one store-initiated connection." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="210" y="698" width="840" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="feat2" value="🔁 Dedup cache: a correlation-ID LRU cache (1024 entries / 30-min TTL) on the store gateway gives mutating tools at-most-once effect under QoS-1 redelivery." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="210" y="724" width="840" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="feat3" value="📡 Topic schema: commands on stores/{store_id}/commands/{domain}; responses on stores/{store_id}/responses/{correlation_id}. Malformed commands go to a dead-letter topic." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="210" y="750" width="840" height="24" as="geometry" />
+        </mxCell>
+        <mxCell id="feat4" value="⚡ Correlation A (production): the chat backend subscribes to the response topic over a pooled SigV4 MQTT-over-WebSocket connection, publishes the command via iot-data:Publish, and waits on a bounded 30s timeout — the full tool call stays within one agent turn." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="210" y="776" width="840" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="feat5" value="🛟 Graceful degradation: on timeout the executor returns a structured error the model can relay; with the optional last-known-state cache enabled it returns the last value with a staleness timestamp. IoT Core queues the command (persistent session) for delivery on reconnect." style="text;html=1;fontSize=11;align=left;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="210" y="812" width="840" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="feat6" value="🔀 Alternative: the event-driven durable relay (&quot;Correlation B&quot;: tool-relay Lambdas → IoT Topic Rule → iot-response-handler → DynamoDB CommandResults/StoreStateCache) is also deployed for fan-out + offline resilience." style="text;html=1;fontSize=11;align=left;verticalAlign=top;fontColor=#666666;" vertex="1" parent="1">
+          <mxGeometry x="210" y="848" width="840" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Legend -->
+        <mxCell id="legend-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#999999;arcSize=6;" vertex="1" parent="1">
+          <mxGeometry x="1090" y="660" width="330" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="legend-title" value="Legend" style="text;html=1;fontSize=12;fontStyle=1;align=left;" vertex="1" parent="1">
+          <mxGeometry x="1105" y="666" width="80" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg1" style="endArrow=classic;html=1;strokeColor=#0078d4;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1110" y="705" as="sourcePoint" />
+            <mxPoint x="1170" y="705" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg1-label" value="Request path (steps 1–6)" style="text;html=1;fontSize=10;align=left;fontColor=#0078d4;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="695" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg2" style="endArrow=classic;html=1;strokeColor=#245A8D;strokeWidth=2;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1110" y="730" as="sourcePoint" />
+            <mxPoint x="1170" y="730" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg2-label" value="Response path (steps 7–10)" style="text;html=1;fontSize=10;align=left;fontColor=#245A8D;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="720" width="230" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leg3" style="endArrow=classic;html=1;strokeColor=#1D8102;strokeWidth=3;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1110" y="755" as="sourcePoint" />
+            <mxPoint x="1170" y="755" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="leg3-label" value="Outbound mTLS (store-initiated)" style="text;html=1;fontSize=10;align=left;fontColor=#1D8102;" vertex="1" parent="1">
+          <mxGeometry x="1180" y="745" width="230" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

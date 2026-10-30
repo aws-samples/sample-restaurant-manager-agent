@@ -1,0 +1,40 @@
+# Web Push protocol client. Pulls in native cryptography/http-ece, so the deploy
+# (Task 1f) bundles this for arm64 (see lambda-steering). The exact versions are
+# pinned in constraints.txt (projected from pylock.toml) and enforced by
+# scripts/bundle.sh via `pip install -c`.
+#
+# The >=2.3 floor is deliberate, not cosmetic. A CVE scanner evaluates the
+# DECLARED RANGE, not what we ship: with the old `>=1.14` floor it resolved
+# pywebpush 1.14 -> aiohttp 3.9.5 and reported CVE-2026-34520 (CVSS 9.1, HTTP
+# response smuggling) plus 15 more aiohttp CVEs, even though the deployed bundle
+# has vendored aiohttp 3.14.1 and is not vulnerable. Keep the floor at the
+# version actually locked so the declared range and reality agree.
+pywebpush>=2.3,<3
+
+# aiohttp is a TRANSITIVE dependency (pywebpush pulls it) and is declared here
+# explicitly to raise its floor. pywebpush 2.3.0 requires it completely
+# unpinned -- literally `Requires-Dist: aiohttp` -- so a CVE scanner evaluating
+# the declared range resolves an ancient 3.9.5 and reports CVE-2026-34520
+# (CVSS 9.1, HTTP response smuggling via null bytes/control characters in the C
+# parser) plus a dozen more aiohttp CVEs. Raising OUR pywebpush floor did not
+# help, because the loose constraint lives in pywebpush's own metadata.
+#
+# The deployed artifact was never vulnerable (constraints.txt pins 3.14.3 and
+# the bundle ships it), but a scanner reads declarations, not artifacts -- so the
+# finding stayed critical until the floor was stated here. 3.14.1 is the fix
+# version for CVE-2026-34520.
+aiohttp>=3.14.1
+
+# idna is TRANSITIVE (aiohttp -> yarl -> idna, and requests -> idna) and is
+# declared here for exactly the same reason as aiohttp above: every parent
+# leaves it unbounded, so a scanner evaluating the declared range resolved
+# idna 3.9.0 and reported CVE-2026-45409 / GHSA-65pc-fj4g-8rjx (CVSS 6.9,
+# quadratic blow-up in `idna.encode()` on crafted long input -- an incomplete
+# fix for CVE-2024-3651 reopened the same denial-of-service).
+#
+# The shipped bundle was never vulnerable: constraints.txt and pylock.toml both
+# pin 3.18. 3.15 is the fix version, and the floor is set there rather than at
+# the locked 3.18 so that a routine idna patch release does not have to be
+# mirrored here -- the floor's job is to make the declared range non-vulnerable,
+# and pylock.toml remains the source of truth for the exact version.
+idna>=3.15

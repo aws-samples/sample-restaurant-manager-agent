@@ -1,0 +1,14 @@
+# Vendored production dependencies - rebuilt via ./bundle.sh (npm ci --omit=dev)
+# before every cdk synth/deploy. Also covered by the repo-root .gitignore.
+node_modules/
+
+# Synth-injected config sidecar: the CDK stack writes the real Cognito IDs +
+# CSRF nonce secret here at synth (decision D3-A). Kept out of git per ARCC
+# SAX-02; index.js prefers it over the committed empty config.json placeholder.
+config.local.json
+
+# Re-include the committed lockfile. The parent package .gitignore
+# (infra/simulator-ec2-alb/.gitignore) ignores package-lock.json globally, but
+# the vendoring step `npm ci` requires a committed lockfile for reproducible,
+# tamper-evident installs of an authentication component.
+!package-lock.json

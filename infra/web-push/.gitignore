@@ -1,0 +1,17 @@
+.venv/
+cdk.out/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Vendored Lambda deps (rebuilt by scripts/bundle.sh at deploy). Ignore the
+# vendored package dirs AND the top-level bundled files (native .so,
+# typing_extensions.py, bin/), while keeping the handler source tracked.
+lambdas/*/*/
+lambdas/*/*.so
+lambdas/*/typing_extensions.py
+lambdas/*/six.py
+lambdas/*/bin/
+!lambdas/*/main.py
+!lambdas/*/keygen.py
+!lambdas/*/requirements.txt

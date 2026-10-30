@@ -1,0 +1,15 @@
+{
+  "app": ".venv/bin/python app.py",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["README.md", "cdk*.json", "requirements*.txt", "**/__init__.py", "**/__pycache__", "tests"]
+  },
+  "context": {
+    "commandResultsTableName": "CommandResults",
+    "storeStateCacheTableName": "StoreStateCache",
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/core:enablePartitionLiterals": true
+  }
+}

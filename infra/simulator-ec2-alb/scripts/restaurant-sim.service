@@ -1,0 +1,47 @@
+[Unit]
+# Restaurant Simulator service unit (spec 004, task 4.2).
+# The simulator runs as a single long-lived asyncio process that serves the
+# REST API, WebSocket endpoint, and Vite-built SPA on :8000 from the same
+# FastAPI app. ``EnvironmentFile`` is populated by user-data and controls
+# MQTT posture (see /etc/restaurant-sim/env).
+Description=Restaurant Simulator
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=simulator
+Group=simulator
+WorkingDirectory=/opt/restaurant-sim
+EnvironmentFile=/etc/restaurant-sim/env
+ExecStart=/opt/restaurant-sim/.venv/bin/python main.py
+Restart=always
+RestartSec=5
+
+# Mirror stdout/stderr to both the journal AND /var/log/restaurant-sim.log
+# so the CloudWatch Agent file-tail source (see cw-agent-config.json) can
+# forward app logs to the /simulator/app log group without needing a
+# reliable rsyslog->journal bridge. ``append:`` (not ``file:``) keeps
+# entries across service restarts.
+StandardOutput=append:/var/log/restaurant-sim.log
+StandardError=append:/var/log/restaurant-sim.log
+
+# Make the journal line-buffered so ``journalctl -u restaurant-sim`` shows
+# log output promptly (without this, Python buffers stdout when it isn't a
+# tty and the dashboard-side logs look frozen).
+Environment=PYTHONUNBUFFERED=1
+
+# main.py binds loopback unless told otherwise. On EC2 it must listen on the
+# instance interface so the ALB target group can reach :8000; the instance
+# security group admits :8000 from the ALB security group only.
+Environment=SIM_BIND_HOST=0.0.0.0
+
+# Basic hardening. Does not require CAP_NET_BIND_SERVICE because the app
+# listens on :8000, not a privileged port.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

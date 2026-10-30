@@ -1,0 +1,22 @@
+{
+  "app": ".venv/bin/python app.py",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["README.md", "cdk*.json", "requirements*.txt", "**/__init__.py", "**/__pycache__", "tests"]
+  },
+  "context": {
+    "alertsTableName": "Alerts",
+    "eventBusName": "proactive-alerts",
+    "dedupWindowMinutes": 15,
+    "ackSlaCriticalMinutes": 5,
+    "ackSlaWarningMinutes": 30,
+    "maxRenotify": 3,
+    "alertsTtlDays": 30,
+    "quietHoursStartHour": 22,
+    "quietHoursEndHour": 6,
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/core:enablePartitionLiterals": true
+  }
+}

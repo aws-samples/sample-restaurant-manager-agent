@@ -1,0 +1,132 @@
+# GENERATED FILE - do not hand-edit the pins below the marker.
+#
+# Pinned dependency versions for the deployed simulator venv, derived from
+# pylock.toml by scripts/lock_dependencies.py.
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# The EC2 bootstrap (infra/simulator-ec2-alb/scripts/user_data.sh) rebuilds the
+# Python venv FROM SCRATCH on every instance replacement -- and because the
+# instance is configured with `user_data_causes_replacement=True`, that happens
+# on any user-data or repo-asset change, i.e. most deploys.
+#
+# Every runtime dependency in pyproject.toml is an open lower-bound range
+# (`fastapi>=...`, `pydantic>=...`, ...), so without pinning, the deployed code
+# runs against whatever those resolve to on the day the instance happens to be
+# built. On 2026-07-31 that bit us: a fresh instance resolved `mcp>=1.0.0` to
+# **mcp 2.0.0**, which moved `mcp.server.fastmcp` to `mcp.server.mcpserver`. The
+# app crash-looped on import and the ALB target never went healthy -- while
+# CloudFormation reported UPDATE_COMPLETE and systemd reported the service
+# `active`. Nothing in the repo had changed to cause it.
+#
+# pip applies this as a CONSTRAINTS file (`-c`), so it only restricts which
+# versions may be chosen -- pyproject.toml still decides WHICH packages are
+# installed. Pins for packages the deployed venv never installs (the `dev` and
+# `docs` extras) are therefore inert here; they are included so this file is an
+# exact projection of pylock.toml with no filtering rule to get wrong.
+#
+# WHERE VERSIONS COME FROM
+# ------------------------
+# pylock.toml (PEP 751) is the SOURCE OF TRUTH. This file is a projection of it
+# for pip, which cannot install from a pylock.toml. Do not edit pins here: an
+# edit would be silently overwritten on the next regeneration, and would make
+# this file disagree with the lock that scanners read.
+#
+# HOW TO CHANGE A VERSION
+# -----------------------
+#   scripts/lock_dependencies.py                        # idempotent; keeps pins
+#   scripts/lock_dependencies.py --upgrade              # move everything
+#   scripts/lock_dependencies.py --upgrade-package mcp  # move one package
+#
+# Re-running without a flag is a no-op: `uv pip compile` preserves the versions
+# already in pylock.toml, so picking up new versions is always an explicit,
+# reviewable act rather than a side effect of regenerating.
+#
+# Then REDEPLOY so a real instance proves the new set boots before it is
+# trusted. A version set that resolves is not a version set that runs -- the
+# 2026-07-31 outage resolved perfectly.
+#
+# tests/test_dependency_lock.py fails if this file and pylock.toml disagree.
+#
+# Pin lineage: originally captured 2026-07-31 from i-02ce6a6905e0f13d7 (healthy,
+# serving traffic; Python 3.12 / aarch64 / AL2023), then adopted as the seed for
+# pylock.toml. Subsequent changes flow from the lock, not from a live instance.
+# --- BEGIN GENERATED PINS - do not edit below this line ---
+aiomqtt==2.5.1
+annotated-doc==0.0.5
+annotated-types==0.8.0
+anyio==4.14.2
+attrs==26.1.0
+aws-sdk-bedrock-runtime==0.7.0
+aws-sdk-signers==0.3.0
+awscrt==0.32.1
+awsiotsdk==1.29.0
+boto3==1.43.61
+botocore==1.43.61
+certifi==2026.7.22
+cffi==2.1.0
+cfgv==3.5.0
+click==8.4.2
+coverage==7.15.3
+cryptography==50.0.0
+diagrams==0.25.1
+distlib==0.4.3
+fastapi==0.141.1
+filelock==3.32.2
+graphviz==0.20.3
+h11==0.16.0
+httpcore==1.0.9
+httptools==0.8.0
+httpx==0.28.1
+httpx-sse==0.4.3
+hypothesis==6.165.0
+identify==2.6.19
+idna==3.18
+ijson==3.5.1
+iniconfig==2.3.0
+jinja2==3.1.6
+jmespath==1.1.0
+jsonschema==4.26.0
+jsonschema-specifications==2025.9.1
+markupsafe==3.0.3
+mcp==1.29.0
+nodeenv==1.10.0
+packaging==26.2
+paho-mqtt==2.1.0
+platformdirs==4.11.0
+pluggy==1.6.0
+pre-commit==4.6.1
+pycparser==3.0
+pydantic==2.13.4
+pydantic-core==2.46.4
+pydantic-settings==2.14.2
+pygments==2.20.0
+pyjwt==2.13.0
+pytest==9.1.1
+pytest-asyncio==1.4.0
+pytest-cov==7.1.0
+python-dateutil==2.9.0.post0
+python-discovery==1.5.1
+python-dotenv==1.2.2
+python-multipart==0.0.32
+pyyaml==6.0.3
+referencing==0.37.0
+rpds-py==2026.6.3
+s3transfer==0.19.2
+six==1.17.0
+smithy-aws-core==0.7.0
+smithy-aws-event-stream==0.3.0
+smithy-core==0.6.0
+smithy-http==0.4.2
+smithy-json==0.2.3
+sortedcontainers==2.4.0
+sse-starlette==3.4.6
+starlette==1.3.1
+typing-extensions==4.16.0
+typing-inspection==0.4.2
+urllib3==2.7.0
+uvicorn==0.52.0
+uvloop==0.22.1
+virtualenv==21.7.1
+watchfiles==1.2.0
+websockets==17.0.1

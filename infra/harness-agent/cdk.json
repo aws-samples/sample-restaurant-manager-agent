@@ -1,0 +1,16 @@
+{
+  "app": ".venv/bin/python app.py",
+  "watch": {
+    "include": ["**"],
+    "exclude": ["README.md", "cdk*.json", "requirements*.txt", "**/__init__.py", "**/__pycache__", "tests", "provision"]
+  },
+  "context": {
+    "bedrockModelId": "us.anthropic.claude-sonnet-4-20250514-v1:0",
+    "executionRoleName": "restaurant-harness-agent-exec-role",
+    "harnessName": "restaurant_manager_agent",
+    "@aws-cdk/core:checkSecretUsage": true,
+    "@aws-cdk/core:target-partitions": ["aws", "aws-cn"],
+    "@aws-cdk/aws-iam:minimizePolicies": true,
+    "@aws-cdk/core:enablePartitionLiterals": true
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "equipment": [
+    {"id": "fryer_1", "name": "Deep Fryer #1", "type": "fryer", "target_temp": 350.0, "unit": "F", "warning_threshold": 10.0, "alert_threshold": 25.0, "drift_rate": 0.5, "failure_prob_per_hour": 0.02},
+    {"id": "fryer_2", "name": "Deep Fryer #2", "type": "fryer", "target_temp": 350.0, "unit": "F", "warning_threshold": 10.0, "alert_threshold": 25.0, "drift_rate": 0.5, "failure_prob_per_hour": 0.02},
+    {"id": "grill_1", "name": "Flat Top Grill", "type": "grill", "target_temp": 400.0, "unit": "F", "warning_threshold": 15.0, "alert_threshold": 30.0, "drift_rate": 0.8, "failure_prob_per_hour": 0.01},
+    {"id": "oven_1", "name": "Convection Oven", "type": "oven", "target_temp": 375.0, "unit": "F", "warning_threshold": 12.0, "alert_threshold": 25.0, "drift_rate": 0.3, "failure_prob_per_hour": 0.01},
+    {"id": "cooler_1", "name": "Walk-in Cooler", "type": "cooler", "target_temp": 38.0, "unit": "F", "warning_threshold": 3.0, "alert_threshold": 8.0, "drift_rate": 0.2, "failure_prob_per_hour": 0.03},
+    {"id": "freezer_1", "name": "Walk-in Freezer", "type": "freezer", "target_temp": 0.0, "unit": "F", "warning_threshold": 5.0, "alert_threshold": 12.0, "drift_rate": 0.3, "failure_prob_per_hour": 0.02}
+  ]
+}

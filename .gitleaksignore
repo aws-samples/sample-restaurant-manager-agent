@@ -1,0 +1,18 @@
+# Gitleaks fingerprint suppressions for THIS repository's history.
+#
+# Both entries are the same non-credential: AWS's canonical example access key
+# id, which once appeared as a fixture VALUE in an adversarial prompt-injection
+# test, and then in the code comment that explained removing it. The value was
+# never load-bearing -- the test asserts that `sanitize_result` redacts on the
+# KEY NAME, so any string would do -- and it is a published documentation
+# placeholder, not a secret. Neither line exists in the current tree.
+#
+# They are suppressed rather than fixed because a secret scanner attributes a
+# finding to the commit that ADDED the line, so removing the text (done) cannot
+# clear a finding already in history. Git history is not rewritten here.
+#
+# Fingerprint format is commit:path:rule:line, so each entry is pinned to one
+# specific historical occurrence and cannot silence anything new. A scanner that
+# ignores this file will still report these two; they are expected and known.
+60412e42db6680edf0e3f9f8007cb56e996c941a:tests/test_prompt_injection_adversarial.py:aws-access-token:345
+95b74931c4746f80a2c3d9d675aa569a53577d70:tests/test_prompt_injection_adversarial.py:aws-access-token:349

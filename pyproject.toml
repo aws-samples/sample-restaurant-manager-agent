@@ -1,0 +1,84 @@
+[project]
+name = "restaurant-simulator"
+version = "0.1.0"
+description = "Python restaurant simulator backend"
+# 3.12 is a hard floor, not a preference. The `voice` extra's
+# aws-sdk-bedrock-runtime declares Requires-Python >=3.12, so on 3.11 the extra
+# silently fails to resolve and pip falls back to the base install -- leaving a
+# deployed instance with NO voice SDK while the service still reports healthy
+# (see the architecture-decisions notes, Nova Sonic gotcha 2). The EC2
+# bootstrap already builds the venv with python3.12; this makes the declared
+# floor match reality so a resolver fails loudly instead of degrading silently.
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic>=2.0.0",
+    "websockets>=12.0",
+    # Capped below 2.0.0 deliberately. The EC2 bootstrap rebuilds this venv from
+    # scratch on every instance replacement, so an open range silently picks up
+    # new majors: on 2026-07-31 a fresh instance installed mcp 2.0.0, which moved
+    # `mcp.server.fastmcp` to `mcp.server.mcpserver`, and the app crash-looped on
+    # import (ModuleNotFoundError) with the ALB target never going healthy.
+    "mcp>=1.29.0,<2.0.0",
+    "aiomqtt>=2.3.0",
+    "python-dotenv>=1.0.0",
+    "boto3>=1.43.30",
+    "awsiotsdk>=1.21.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "hypothesis>=6.0.0",
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.27.0",
+    "pytest-cov>=4.0.0",
+]
+# Nova Sonic voice edge (ADR-005 / spec 025 Phase 1).
+# Experimental AWS SDK exposing invoke_model_with_bidirectional_stream
+# (stock boto3 lacks it). Only needed when VOICE_ENABLED=true.
+voice = [
+    "aws-sdk-bedrock-runtime>=0.7.0",
+]
+# Architecture-diagram tooling (mingrammer `diagrams`). Renders the figures in
+# docs/solution-guidance/diagrams/ to PNG via Graphviz. Pure-Python, but it
+# shells out to the Graphviz `dot` binary, which must be installed separately
+# (e.g. `dnf install graphviz` / `brew install graphviz`). Only needed to
+# regenerate the diagrams — not required to run the simulator.
+docs = [
+    "diagrams>=0.24",
+]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["simulator*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+# Bandit (security linter, run by the ProtoShield `bandit` plugin, which passes
+# this file with `-c` when it sees a [tool.bandit] table).
+#
+# Test code is excluded, not because test code is uninteresting, but because
+# bandit's two loudest checks are *correct behaviour* in a test and drown out
+# everything else. Before this config, a scan reported 1,124 bandit findings, of
+# which 1,104 were in test files: 1,089 B101 (`assert` -- which is how pytest
+# expresses every assertion) and 13 B105 (obvious fixtures like "AKIATEST" /
+# "tok123" in tests/test_voice_broker.py). The 20 findings in shipped code were
+# invisible underneath them. Excluding tests leaves those 20 legible, which is
+# the whole point of running the scanner.
+#
+# Scope note: these globs are APPENDED to the scanner's own CLI --exclude
+# (node_modules, cdk.out, .venv, vendored deps), they do not replace it -- see
+# bandit's manager.discover_files. Keep the patterns narrow: `*/tests/*` and
+# `*/test_*.py` only, so a new non-test directory can never be silenced by
+# accident. Nothing here suppresses a check for shipped code; to silence a
+# specific finding there, use an inline `# nosec <ID>` with a reason next to it,
+# so the justification lives at the code rather than in this file.
+[tool.bandit]
+exclude_dirs = ["*/tests/*", "*/test_*.py"]

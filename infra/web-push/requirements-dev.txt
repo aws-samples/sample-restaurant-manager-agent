@@ -1,0 +1,7 @@
+-r requirements.txt
+boto3>=1.42
+pytest>=8.0
+# spec 028: the rotator/keygen unit test exercises real EC P-256 keygen. Kept in
+# lockstep with lambdas/rotator/requirements.txt so the test exercises the same
+# major the Lambda ships (floor raised to >=50 for CVE-2026-69247).
+cryptography>=50,<51
