@@ -88,6 +88,17 @@ REQUIRED_REGION: Final[str] = "us-west-2"
 CHAT_FEATURE_REQUIRED_FLAG: Final[str] = "chatFeatureRequired"
 EDGE_AUTH_REQUIRED_FLAG: Final[str] = "edgeAuthRequired"
 
+#: Opt-in (default OFF). When VPC Block Public Access (BPA) is turned on for the
+#: account/Region, CloudFront refuses to create a VPC origin in a subnet BPA
+#: covers ("You can't update an endpoint group that has endpoints in a subnet
+#: with Block Public Access enabled"). Setting this flag creates a BPA exclusion
+#: for the ALB's PRIVATE subnets only -- the subnets that hold the VPC origin's
+#: endpoints -- so the distribution can be created. It never changes the
+#: account's BPA setting and never excludes the public subnets. Off by default
+#: so a deployment never bypasses an account security control silently; the
+#: deploy script asks before setting it.
+VPC_BPA_EXCLUSION_FLAG: Final[str] = "vpcBpaExclusion"
+
 
 def _flag_is_set(node: Any, key: str, *, default: bool = True) -> bool:
     """Read a boolean context flag that may arrive as a bool or a string.
@@ -1040,6 +1051,26 @@ class SimulatorEc2AlbStack(cdk.Stack):
             ),
         )
 
+        # Opt-in VPC Block Public Access exclusions (see VPC_BPA_EXCLUSION_FLAG).
+        # Scoped to the ALB's private subnets, which have no route to the
+        # internet gateway (egress goes through the NAT gateway), so excluding
+        # them lets CloudFront place VPC-origin endpoints there without opening
+        # any inbound internet path. The ALB and EC2 security groups are
+        # unchanged: the ALB still accepts HTTP:80 only from CloudFront's
+        # VPC-origins security group. The distribution (and its VPC origin)
+        # depends on these, so they exist before CloudFront validates subnets.
+        self.bpa_exclusions: list[ec2.CfnVPCBlockPublicAccessExclusion] = []
+        if _flag_is_set(self.node, VPC_BPA_EXCLUSION_FLAG, default=False):
+            for index, subnet in enumerate(self.vpc.private_subnets, start=1):
+                self.bpa_exclusions.append(
+                    ec2.CfnVPCBlockPublicAccessExclusion(
+                        self,
+                        f"AlbSubnetBpaExclusion{index}",
+                        internet_gateway_exclusion_mode="allow-bidirectional",
+                        subnet_id=subnet.subnet_id,
+                    )
+                )
+
         # --------------------------------------------------------------
         # Spec 029, Tasks 4 & 8: CloudFront distribution (VPC origin) with a
         # gated Lambda@Edge (Cognito@Edge) viewer-request authenticator.
@@ -1173,6 +1204,8 @@ class SimulatorEc2AlbStack(cdk.Stack):
                 edge_lambdas=edge_lambdas,
             ),
         )
+        for exclusion in self.bpa_exclusions:
+            self.distribution.node.add_dependency(exclusion)
 
         # --------------------------------------------------------------
         # Spec 029, Task 5: lock the internal ALB to CloudFront's VPC origin.

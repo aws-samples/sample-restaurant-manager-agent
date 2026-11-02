@@ -11,9 +11,13 @@
 #
 # One-time per host boot (registers QEMU for arm64 emulation on an x86 host):
 #   docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+#
+# Uses the `docker` CLI by default. Set DOCKER to use another Docker-compatible
+# CLI (shell aliases are not visible to scripts), for example DOCKER=finch.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 ROOT="$(pwd)"
+DOCKER="${DOCKER:-docker}"
 
 # The cpython ABI of the wheels installed below is the ABI of THIS image, and a
 # Lambda can only load .so files built for its own runtime -- a mismatch fails at
@@ -46,7 +50,7 @@ bundle_one() {
   while IFS= read -r tracked; do
     keep_expr+=(! -name "$tracked")
   done < <(git ls-files . | sed 's|.*/||' | sort -u)
-  docker run --rm --platform linux/arm64 \
+  "$DOCKER" run --rm --platform linux/arm64 \
     -v "$(pwd):/var/task" -w /var/task \
     "$BUILD_IMAGE" \
     find . -mindepth 1 -maxdepth 1 "${keep_expr[@]}" -exec rm -rf {} +
@@ -65,7 +69,7 @@ bundle_one() {
     echo "ERROR: $lambda_dir/constraints.txt missing - run scripts/lock_dependencies.py" >&2
     exit 1
   fi
-  docker run --rm --platform linux/arm64 \
+  "$DOCKER" run --rm --platform linux/arm64 \
     -v "$(pwd):/var/task" -w /var/task \
     "$BUILD_IMAGE" \
     pip install -r requirements.txt -c constraints.txt -t . --upgrade
@@ -86,7 +90,7 @@ bundle_one() {
   #
   # Done in-container because only root can chown these; `id -u`/`id -g` are
   # evaluated on the HOST, so they resolve to the invoking user, not to root.
-  docker run --rm --platform linux/arm64 \
+  "$DOCKER" run --rm --platform linux/arm64 \
     -v "$(pwd):/var/task" -w /var/task \
     "$BUILD_IMAGE" \
     chown -R "$(id -u):$(id -g)" .
