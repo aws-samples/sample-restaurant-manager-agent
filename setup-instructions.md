@@ -334,7 +334,7 @@ aws lightsail create-instances \
 ssh -i <key-path> ubuntu@<instance-ip>
 
 sudo apt update && sudo apt install -y python3.11 python3.11-venv nodejs npm
-git clone <repo-url> && cd restaurant-manager-agent
+git clone https://github.com/aws-samples/sample-restaurant-manager-agent.git && cd sample-restaurant-manager-agent
 python3.11 -m venv .venv
 source .venv/bin/activate
 pip install -e .
@@ -355,10 +355,10 @@ After=network.target
 [Service]
 Type=simple
 User=ubuntu
-WorkingDirectory=/home/ubuntu/restaurant-manager-agent
-Environment=PATH=/home/ubuntu/restaurant-manager-agent/.venv/bin:/usr/bin
-EnvironmentFile=/home/ubuntu/restaurant-manager-agent/.env
-ExecStart=/home/ubuntu/restaurant-manager-agent/.venv/bin/python main.py
+WorkingDirectory=/home/ubuntu/sample-restaurant-manager-agent
+Environment=PATH=/home/ubuntu/sample-restaurant-manager-agent/.venv/bin:/usr/bin
+EnvironmentFile=/home/ubuntu/sample-restaurant-manager-agent/.env
+ExecStart=/home/ubuntu/sample-restaurant-manager-agent/.venv/bin/python main.py
 Restart=always
 
 [Install]

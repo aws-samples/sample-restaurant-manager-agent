@@ -47,12 +47,15 @@ lambdas/edge-auth/bundle.sh          # npm ci --omit=dev (pure JS; no container)
 Lambda@Edge forbids environment variables, so the Cognito IDs + CSRF secret are injected into the edge function's bundled config **at synth** from CDK context (decision D3-A). Because those IDs don't exist until Cognito is first created, the initial rollout is two phases:
 
 **Phase 1 — create everything except the edge association** (empty `edgeCognito*` context).
-Note the three IDs are **pinned in `cdk.json`** for the account this was developed
-against, so a fresh clone is already in the phase-2 shape; to genuinely run phase 1
-on a new account you must blank them explicitly:
+The stack also needs `harnessArn`, `iotEndpoint`, and `agentcoreMemoryId` in the gitignored
+`cdk.context.json` (or as `-c` values) on every deploy; see the root README's Manual
+Deployment section. `edgeAuthRequired` is `true` in `cdk.json`, which makes a synth with no
+`edgeCognitoAppClientId` fail, so phase 1 must opt out explicitly. If an earlier deploy left
+`edgeCognito*` values in `cdk.context.json`, blank them too:
 
 ```bash
 PATH=.venv/bin:$PATH cdk deploy SimulatorEc2AlbStack \
+  -c edgeAuthRequired=false \
   -c edgeCognitoUserPoolId= \
   -c edgeCognitoAppClientId= \
   -c edgeCognitoUserPoolDomain=
@@ -71,7 +74,7 @@ aws cloudformation describe-stacks --stack-name SimulatorEc2AlbStack \
 #   => <prefix>.auth.us-west-2.amazoncognito.com
 ```
 
-**Phase 2 — associate the edge authenticator** by passing the captured values as context (pin them in `cdk.json` or pass `-c`). Also set a strong `edgeCsrfNonceSecret` — it is kept out of git (written only into the gitignored `config.local.json` sidecar at synth):
+**Phase 2 — associate the edge authenticator** by passing the captured values as context (save them in the gitignored `cdk.context.json` or pass `-c`). Also set a strong `edgeCsrfNonceSecret` — it is kept out of git (written only into the gitignored `config.local.json` sidecar at synth):
 
 ```bash
 PATH=.venv/bin:$PATH cdk deploy SimulatorEc2AlbStack \
@@ -82,7 +85,7 @@ PATH=.venv/bin:$PATH cdk deploy SimulatorEc2AlbStack \
 ```
 
 After the one-time bootstrap, **routine deploys need no `-c`** (but still need the
-stack name — `cdk deploy SimulatorEc2AlbStack`): the three non-secret `edgeCognito*` IDs are pinned in `cdk.json`, and the CSRF secret persists in the gitignored `config.local.json` sidecar — the stack reuses it when `-c edgeCsrfNonceSecret` is absent, and **fails loud** rather than baking an empty secret. Deploying from a **fresh machine or CI** that has no sidecar requires passing `-c edgeCsrfNonceSecret=...` once (or copying the sidecar over), since the secret is intentionally never committed. Budget ~10–15 minutes on a cold account (longest leg is the EC2 user-data bootstrap) plus a few minutes for CloudFront + the Lambda@Edge replica to propagate.
+stack name — `cdk deploy SimulatorEc2AlbStack`): the three non-secret `edgeCognito*` IDs are read from the gitignored `cdk.context.json` once you save them there, and the CSRF secret persists in the gitignored `config.local.json` sidecar — the stack reuses it when `-c edgeCsrfNonceSecret` is absent, and **fails loud** rather than baking an empty secret. Deploying from a **fresh machine or CI** that has no sidecar requires passing `-c edgeCsrfNonceSecret=...` once (or copying the sidecar over), since the secret is intentionally never committed. Budget ~10–15 minutes on a cold account (longest leg is the EC2 user-data bootstrap) plus a few minutes for CloudFront + the Lambda@Edge replica to propagate.
 
 On success the stack prints these outputs:
 

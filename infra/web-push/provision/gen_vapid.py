@@ -25,7 +25,13 @@ import os
 import sys
 
 # Import the shared keygen from the rotator Lambda dir (single source of truth).
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lambdas", "rotator"))
+# The dir is APPENDED to sys.path, never prepended: scripts/bundle.sh vendors a
+# Linux arm64 build of cryptography into that same dir for the Lambda, and
+# putting it first would shadow the venv's native build, so the import dies on
+# the vendored _rust.abi3.so. Appending still finds the first-party `keygen`
+# (nothing else has that name) while the venv's site-packages wins for
+# cryptography. tests/test_rotator.py::_ensure_importable does the same.
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "lambdas", "rotator"))
 from keygen import generate_vapid  # noqa: E402
 
 

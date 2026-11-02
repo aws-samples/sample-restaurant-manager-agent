@@ -24,6 +24,7 @@ The pattern at the center of this Guidance is **secure remote tool invocation**.
    - [Third-party tools](#third-party-tools)
    - [AWS account requirements](#aws-account-requirements)
    - [AWS CDK bootstrap](#aws-cdk-bootstrap)
+   - [VPC Block Public Access](#vpc-block-public-access)
    - [Supported Regions](#supported-regions)
 4. [Automated Deployment](#automated-deployment)
 5. [Manual Deployment](#manual-deployment)
@@ -323,11 +324,21 @@ This deployment requires:
 
 ### AWS CDK bootstrap
 
-This Guidance uses AWS CDK. If you are using AWS CDK for the first time in this account/Region, bootstrap it once before deploying:
+This Guidance uses AWS CDK. If you are using AWS CDK for the first time in this account, bootstrap it once in **both** `us-west-2` and `us-east-1` before deploying. The simulator stack needs `us-east-1` because CDK deploys its Lambda@Edge authenticator there. The automated deployment script checks and bootstraps both Regions for you.
 
 ```bash
-cdk bootstrap aws://<account-id>/us-west-2
+cdk bootstrap aws://<account-id>/us-west-2 aws://<account-id>/us-east-1
 ```
+
+### VPC Block Public Access
+
+If [VPC Block Public Access](https://docs.aws.amazon.com/vpc/latest/userguide/security-vpc-bpa.html) (BPA) is turned on in `us-west-2`, the simulator stack fails with *"You can't update an endpoint group that has endpoints in a subnet with Block Public Access enabled"*. BPA blocks CloudFront VPC origins, which the dashboard uses to reach its internal load balancer. Check the setting with:
+
+```bash
+aws ec2 describe-vpc-block-public-access-options --region us-west-2
+```
+
+If `InternetGatewayBlockMode` isn't `off`, the simulator stack can create BPA exclusions (`allow-bidirectional`) for the load balancer's two private subnets when you set the `vpcBpaExclusion` context flag. Those subnets have no route to the internet gateway, and the load balancer still accepts traffic only from CloudFront. The account's BPA setting and the public subnets are unchanged, and the exclusions are deleted with the stack. The deployment script detects BPA and asks before setting the flag. Exclusions only work if `ExclusionsAllowed` is `allowed`. If your AWS Organization manages BPA and blocks exclusions, deploy into a different account. Check with whoever manages your account's security settings before adding exclusions.
 
 ### Supported Regions
 
@@ -335,44 +346,59 @@ This Guidance is developed and validated in **US West (Oregon) `us-west-2`**. It
 
 ## Automated Deployment
 
-This section provides the quickest path to deploy the Guidance using an automated script.
+The quickest way to deploy is the `scripts/deploy.sh` script. It runs the same steps as [Manual Deployment](#manual-deployment):
 
-> **Note:** The one-click deploy script (`scripts/deploy.sh`) has not been generated yet. Generate it using the **deploy-scripts** automation of the Guidance Factory power to complete this section, then it will orchestrate the multi-stack CDK deployment (dependency installation, CDK bootstrap check, and the stacks in the order shown in [Manual Deployment](#manual-deployment)) and validate the result.
-
-Once generated, usage is:
+- Checks the [Prerequisites](#prerequisites) and your AWS credentials.
+- Bootstraps CDK in `us-west-2` and `us-east-1` if needed.
+- Deploys each stack in dependency order.
+- Creates the account-specific resources the stacks depend on: the store's IoT identity, the AgentCore Memory resource, the AgentCore harness, and the Web Push VAPID keys.
+- Runs the simulator's two-phase Cognito edge-auth deployment.
+- Checks that every stack deployed and that CloudFront requires a login.
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd restaurant-manager-agent
-
-# Make the script executable and run it
-chmod +x scripts/deploy.sh
+git clone https://github.com/aws-samples/sample-restaurant-manager-agent.git
+cd sample-restaurant-manager-agent
 ./scripts/deploy.sh
 ```
 
-**Environment:**
-- Designed for AWS CodeBuild environments running Amazon Linux 2023.
-- Can also be run on Amazon Linux 2023 EC2 instances or local environments.
-- Requires the AWS CLI configured with appropriate credentials and the [Prerequisites](#prerequisites) installed.
+The script shows the target account and asks for confirmation before it creates anything, then asks for a contact email for Web Push. It takes about 30 to 45 minutes on a new account. When it finishes, it prints the dashboard URL.
 
-**Note:** For a detailed understanding of each deployment step, see the [Manual Deployment](#manual-deployment) section below.
+**Options:**
+
+| Option | Purpose |
+|---|---|
+| `--yes` | Run without prompts. Web Push uses `mailto:ops@example.com` unless you also pass `--push-subject`. |
+| `--skip-web-push` | Don't deploy the optional Web Push layer. Docker is then not required. |
+| `--allow-bpa-exclusion` | If VPC Block Public Access is on, create the simulator's subnet exclusions without asking (see [VPC Block Public Access](#vpc-block-public-access)). `--yes` alone doesn't approve them. |
+| `--store-id ID` | Name of the simulated store (default `sim-store-001`). |
+| `--push-subject mailto:ADDR` | Contact address sent to browser push services with each Web Push message. |
+
+**Environment:**
+
+- Runs on macOS, Linux, and Windows through WSL2. Native Windows shells (PowerShell, Git Bash) aren't supported.
+- Requires the AWS CLI configured with credentials for the target account, and the [Prerequisites](#prerequisites) installed.
+- For Web Push, the script uses the first of `docker`, `finch`, or `podman` whose engine is running. Shell aliases such as `docker` → `finch` aren't visible to scripts, so to choose a CLI explicitly, set `DOCKER`, for example `DOCKER=finch ./scripts/deploy.sh`. If you run `infra/web-push/scripts/bundle.sh` by hand, it also honors `DOCKER`.
+- On an x86_64 Linux host, the script offers to register QEMU with Docker so it can build the arm64 Lambda dependencies. This runs a privileged container once per boot.
+
+The script is safe to re-run. Steps that are already done are skipped or updated in place. It saves the account-specific values (harness ARN, memory ID, IoT endpoint, Cognito IDs) to the gitignored `cdk.context.json` file in `infra/harness-agent` and `infra/simulator-ec2-alb`, so later `cdk deploy` and `cdk destroy` commands in those directories need no `-c` flags.
 
 ## Manual Deployment
 
-This section provides step-by-step instructions for manual deployment. Use it to understand each step in detail or to customize the deployment. The stacks are independent CDK apps and are deployed in dependency order. All stacks deploy to **`us-west-2`**.
+This section walks through each deployment step. Use it to understand what the script does or to customize the deployment. The stacks are independent CDK apps, deployed in dependency order, and all deploy to **`us-west-2`**.
+
+Run all steps in the same terminal session. Later steps reuse shell variables (`MEMORY_ARN`, `MEMORY_ID`) set in earlier ones.
 
 1. **Clone the repository.**
 
    ```bash
-   git clone <repository-url>
-   cd restaurant-manager-agent
+   git clone https://github.com/aws-samples/sample-restaurant-manager-agent.git
+   cd sample-restaurant-manager-agent
    ```
 
-2. **Bootstrap CDK** (first-time users only — see [Prerequisites](#aws-cdk-bootstrap)).
+2. **Bootstrap CDK** in both Regions (first-time users only; see [AWS CDK bootstrap](#aws-cdk-bootstrap)).
 
    ```bash
-   cdk bootstrap aws://<account-id>/us-west-2
+   cdk bootstrap aws://<account-id>/us-west-2 aws://<account-id>/us-east-1
    ```
 
 3. **Deploy the store transport (AWS IoT Core).** Creates the `iot-response-handler` Lambda, the IoT Topic Rule on `stores/+/responses/+`, the shared fleet policy, and per-store provisioning tooling.
@@ -403,19 +429,36 @@ This section provides step-by-step instructions for manual deployment. Use it to
    cd ../..
    ```
 
-6. **Deploy the agent layer (AgentCore Managed Harness).** Creates the least-privilege harness execution role, then provisions the harness itself via the control-plane script (the harness has no stable CloudFormation construct at GA).
+6. **Create the AgentCore Memory resource.** The harness stores chat history here and the dashboard reads it back. Only short-term conversation events are used, so no long-term memory strategies are configured. Events expire after 30 days.
+
+   ```bash
+   MEMORY_ARN=$(aws bedrock-agentcore-control create-memory --region us-west-2 \
+     --name restaurant_manager_agent_memory \
+     --description "Chat history for the Restaurant Manager Agent sample" \
+     --event-expiry-duration 30 \
+     --query memory.arn --output text)
+   MEMORY_ID=${MEMORY_ARN##*/}
+
+   # Repeat until this prints ACTIVE (usually under a minute)
+   aws bedrock-agentcore-control get-memory --region us-west-2 \
+     --memory-id "$MEMORY_ID" --query memory.status --output text
+   ```
+
+7. **Deploy the agent layer (AgentCore Managed Harness).** Creates the least-privilege harness execution role, then provisions the harness itself with a control-plane script, because the harness has no stable CloudFormation construct at GA. The stack and the script both read `memoryArn` from the gitignored `cdk.context.json`. The script saves the new harness ARN to `provision/.harness_arn`.
 
    ```bash
    cd infra/harness-agent
    python3.12 -m venv .venv
    .venv/bin/pip install -r requirements-dev.txt
+   printf '{\n  "memoryArn": "%s"\n}\n' "$MEMORY_ARN" > cdk.context.json
    PATH=.venv/bin:$PATH cdk deploy
-   # Note the HarnessExecutionRoleArn output, then:
-   .venv/bin/python provision/provision_harness.py --role-arn <HarnessExecutionRoleArn>
+   ROLE_ARN=$(aws cloudformation describe-stacks --region us-west-2 --stack-name HarnessAgentStack \
+     --query "Stacks[0].Outputs[?OutputKey=='HarnessExecutionRoleArn'].OutputValue" --output text)
+   .venv/bin/python provision/provision_harness.py --role-arn "$ROLE_ARN"
    cd ../..
    ```
 
-7. **Deploy the proactive alerting layer.** Creates the `Alerts` table, the ingest Lambda + IoT Topic Rule on `stores/+/events/+`, the `AlertRaised` EventBridge bus, and the Step Functions policy workflow.
+8. **Deploy the proactive alerting layer.** Creates the `Alerts` table, the ingest Lambda + IoT Topic Rule on `stores/+/events/+`, the `AlertRaised` EventBridge bus, and the Step Functions policy workflow.
 
    ```bash
    cd infra/proactive-alerting
@@ -425,31 +468,78 @@ This section provides step-by-step instructions for manual deployment. Use it to
    cd ../..
    ```
 
-8. **(Optional) Deploy the Web Push re-engagement layer** for the voice/proactive display.
+9. **(Optional) Deploy the Web Push re-engagement layer** for the voice/proactive display. `scripts/bundle.sh` builds the push-sender and rotator Lambda dependencies for arm64 in Docker. On an x86_64 Linux host, first register QEMU once per boot (see [Prerequisites](#operating-system)). After the stack deploys, `gen_vapid.py` generates the VAPID key pair. It stores the private key in Secrets Manager and the public key in Systems Manager Parameter Store. Replace the email address with a contact address of your own.
 
    ```bash
    cd infra/web-push
    python3.12 -m venv .venv
    .venv/bin/pip install -r requirements-dev.txt
+   scripts/bundle.sh
    PATH=.venv/bin:$PATH cdk deploy
+   .venv/bin/python provision/gen_vapid.py --subject mailto:you@example.com --put \
+     --secret-id restaurant-sim/web-push/vapid \
+     --public-key-param /restaurant-sim/web-push/vapid-public-key --region us-west-2
    cd ../..
    ```
 
-9. **Deploy the store simulator (development/testing only).** Stands up a VPC, one ARM64 EC2 instance running the simulator, and an **internal** Application Load Balancer fronted by **Amazon CloudFront** with Cognito edge auth (spec 029). On success the stack prints the CloudFront URL. See the simulator-access note below for the one-time two-phase bootstrap.
+10. **Deploy the store simulator (development/testing only).** Stands up a VPC, one ARM64 EC2 instance running the simulator, and an **internal** Application Load Balancer fronted by **Amazon CloudFront**, with Cognito login enforced at the edge by a Lambda@Edge function.
 
-   ```bash
-   cd infra/simulator-ec2-alb
-   python3.12 -m venv .venv
-   .venv/bin/pip install -r requirements-dev.txt
-   PATH=.venv/bin:$PATH cdk deploy SimulatorEc2AlbStack
-   cd ../..
-   ```
+    The first deployment takes two phases. Lambda@Edge functions can't read environment variables, so the Cognito IDs are built into the edge function when CDK synthesizes it. Those IDs don't exist until Cognito is created. Phase 1 creates everything except the edge authenticator. Phase 2 attaches it. Until phase 2 finishes, the dashboard is reachable without a login, so run phase 2 right away.
 
-   > **This is the only multi-stack app.** CDK adds a `us-east-1` support stack for the Lambda@Edge authenticator, so `cdk deploy` / `diff` / `destroy` must name `SimulatorEc2AlbStack`; a bare command fails with *"Since this app includes more than a single stack..."*. The other five stacks are single-stack and need no argument.
+    **Phase 1.** Vendor the edge function's dependencies, record the values the stack needs in its gitignored `cdk.context.json`, and deploy with edge auth explicitly turned off:
 
-   > In a real deployment, replace the simulator with the store's own systems running the store gateway and MCP servers (see [Development and testing](#development-and-testing)).
+    ```bash
+    cd infra/simulator-ec2-alb
+    python3.12 -m venv .venv
+    .venv/bin/pip install -r requirements-dev.txt
+    lambdas/edge-auth/bundle.sh
 
-   > **Simulator access (spec 029 — CloudFront edge auth).** The simulator's ALB is **internal** and fronted by **Amazon CloudFront** with **Cognito login enforced at the edge** (Lambda@Edge `cognito-at-edge`, free `*.cloudfront.net` cert — no domain / Route 53 / ACM, superseding spec 007). The first rollout is a **two-phase bootstrap**: run `lambdas/edge-auth/bundle.sh`, then `cdk deploy SimulatorEc2AlbStack` (creates Cognito + the distribution), then redeploy with the Cognito IDs in `edgeCognito*` context to associate the edge authenticator (`us-east-1` must also be CDK-bootstrapped for the Lambda@Edge support stack; routine deploys thereafter need no `-c`). Access the dashboard at the **`CloudFrontUrl`** output (`https://<CloudFrontDomainName>/`) — unauthenticated visitors are redirected to the Cognito Hosted UI. See [`infra/simulator-ec2-alb/README.md`](infra/simulator-ec2-alb/README.md) and an internal design record for the two-phase deploy, smoke tests, and destroy.
+    ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+    HARNESS_ARN=$(cat ../harness-agent/provision/.harness_arn)
+    IOT_ENDPOINT=$(aws iot describe-endpoint --region us-west-2 \
+      --endpoint-type iot:Data-ATS --query endpointAddress --output text)
+    cat > cdk.context.json <<EOF
+    {
+      "harnessArn": "$HARNESS_ARN",
+      "iotEndpoint": "$IOT_ENDPOINT",
+      "agentcoreMemoryId": "$MEMORY_ID"
+    }
+    EOF
+
+    PATH=.venv/bin:$PATH cdk deploy SimulatorEc2AlbStack -c edgeAuthRequired=false
+    ```
+
+    If VPC Block Public Access is on in your account, add `"vpcBpaExclusion": "true"` to `cdk.context.json` in both phases. Keep it there for later deploys and `cdk destroy`. See [VPC Block Public Access](#vpc-block-public-access) first.
+
+    **Phase 2.** Read the Cognito IDs from the phase 1 outputs, add them to `cdk.context.json`, and redeploy. The stack saves the CSRF nonce secret you pass here to the gitignored `lambdas/edge-auth/config.local.json`, so later deploys reuse it.
+
+    ```bash
+    USER_POOL_ID=$(aws cloudformation describe-stacks --region us-west-2 --stack-name SimulatorEc2AlbStack \
+      --query "Stacks[0].Outputs[?OutputKey=='CognitoUserPoolId'].OutputValue" --output text)
+    APP_CLIENT_ID=$(aws cloudformation describe-stacks --region us-west-2 --stack-name SimulatorEc2AlbStack \
+      --query "Stacks[0].Outputs[?OutputKey=='CognitoAppClientId'].OutputValue" --output text)
+    cat > cdk.context.json <<EOF
+    {
+      "harnessArn": "$HARNESS_ARN",
+      "iotEndpoint": "$IOT_ENDPOINT",
+      "agentcoreMemoryId": "$MEMORY_ID",
+      "edgeCognitoUserPoolId": "$USER_POOL_ID",
+      "edgeCognitoAppClientId": "$APP_CLIENT_ID",
+      "edgeCognitoUserPoolDomain": "restaurant-sim-$ACCOUNT_ID.auth.us-west-2.amazoncognito.com"
+    }
+    EOF
+
+    PATH=.venv/bin:$PATH cdk deploy SimulatorEc2AlbStack -c edgeCsrfNonceSecret="$(openssl rand -hex 32)"
+    cd ../..
+    ```
+
+    On success, the stack prints the dashboard URL as the `CloudFrontUrl` output. Unauthenticated visitors are redirected to the Cognito Hosted UI, where you can sign up for an account. Routine deploys after this need no `-c` flags.
+
+    > **This is the only multi-stack app.** CDK adds a `us-east-1` support stack for the Lambda@Edge authenticator, so `cdk deploy`, `cdk diff`, and `cdk destroy` must name `SimulatorEc2AlbStack`. A bare command fails with *"Since this app includes more than a single stack..."*. The other five apps have a single stack and need no argument.
+
+    > In a real deployment, replace the simulator with the store's own systems running the store gateway and MCP servers (see [Development and testing](#development-and-testing)).
+
+    See [`infra/simulator-ec2-alb/README.md`](infra/simulator-ec2-alb/README.md) for smoke tests and troubleshooting.
 
 Each stack's own README (`infra/<stack>/README.md`) documents its context flags, smoke tests, and outputs.
 
@@ -530,36 +620,40 @@ Customize and extend the Guidance to fit your environment:
 
 ## Cleanup
 
-Delete the deployed resources in reverse dependency order to avoid CloudFormation export-in-use errors. For each stack, run `cdk destroy` from its directory (with its venv on the `PATH`):
+Delete the deployed resources in reverse dependency order to avoid CloudFormation export-in-use errors. Run these commands from the repository root on the machine you deployed from. The simulator and harness stacks read their account-specific values from the gitignored `cdk.context.json` written during deployment, and the simulator also needs the edge-auth `config.local.json` file. If you skipped Web Push, skip its line.
 
 ```bash
-cd infra/simulator-ec2-alb && PATH=.venv/bin:$PATH cdk destroy SimulatorEc2AlbStack && cd ../..
-cd infra/web-push          && PATH=.venv/bin:$PATH cdk destroy && cd ../..
-cd infra/proactive-alerting && PATH=.venv/bin:$PATH cdk destroy && cd ../..
-cd infra/cloud-tool-relay   && PATH=.venv/bin:$PATH cdk destroy && cd ../..
+(cd infra/simulator-ec2-alb  && PATH=.venv/bin:$PATH cdk destroy SimulatorEc2AlbStack)
+(cd infra/web-push           && PATH=.venv/bin:$PATH cdk destroy)
+(cd infra/proactive-alerting && PATH=.venv/bin:$PATH cdk destroy)
+(cd infra/cloud-tool-relay   && PATH=.venv/bin:$PATH cdk destroy)
 ```
 
-Tear down the harness (control-plane resource) before destroying its role stack:
+Tear down the harness (a control-plane resource) before destroying its role stack, then delete the AgentCore Memory resource. The memory ID is the last part of `memoryArn` in `infra/harness-agent/cdk.context.json`, and the deploy script also prints it.
 
 ```bash
-cd infra/harness-agent
-.venv/bin/python provision/provision_harness.py --teardown
-PATH=.venv/bin:$PATH cdk destroy
-cd ../..
-
-cd infra/iot-core-broker && PATH=.venv/bin:$PATH cdk destroy && cd ../..
+(cd infra/harness-agent && .venv/bin/python provision/provision_harness.py --teardown \
+  && PATH=.venv/bin:$PATH cdk destroy)
+aws bedrock-agentcore-control delete-memory --region us-west-2 --memory-id <memory-id>
 ```
 
-**Manual deletion required** (not removed by `cdk destroy`):
+Remove the store identity (it detaches and deletes the certificate, deletes the IoT thing, and force-deletes the `restaurant-sim/iot/{store_id}/cert` secret), then destroy the IoT stack:
 
-- **AWS Secrets Manager** per-store certificate secrets (`restaurant-sim/iot/{store_id}/cert`) and the Web Push VAPID secret. Delete them explicitly, or they remain (billed) until their recovery window elapses:
+```bash
+(cd infra/iot-core-broker && .venv/bin/python provision/provision_store.py --teardown --store-id sim-store-001 \
+  && PATH=.venv/bin:$PATH cdk destroy)
+```
+
+**Manual deletion required** (not removed by the commands above):
+
+- **The Lambda@Edge support stack** (`edge-lambda-stack-*` in `us-east-1`). CloudFront deletes edge function replicas asynchronously, often 15 to 60 minutes after the distribution is removed. Delete this stack from the CloudFormation console in `us-east-1` once the replicas have drained.
+- **The Web Push VAPID public-key parameter**, which `gen_vapid.py` created outside CloudFormation:
 
   ```bash
-  aws secretsmanager delete-secret --region us-west-2 \
-    --secret-id restaurant-sim/iot/sim-store-001/cert --force-delete-without-recovery
+  aws ssm delete-parameter --region us-west-2 --name /restaurant-sim/web-push/vapid-public-key
   ```
 
-- **IoT things, certificates, and policies** created by the provisioning script. Detach and delete the certificate, then delete the thing, for each provisioned store.
+- **The shared IoT fleet policy** (`RestaurantStoreIotPolicy`), which `provision_store.py --teardown` leaves in place for other stores. Delete it from the AWS IoT console once no certificates use it.
 - **DynamoDB tables** with `RETAIN` removal policies (if configured) and any **CloudWatch log groups** you no longer need.
 
 ## FAQ, known issues, additional considerations, and limitations
